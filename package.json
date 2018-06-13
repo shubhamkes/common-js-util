@@ -1,0 +1,27 @@
+{
+    "name": "common-js-util",
+    "version": "0.0.1",
+    "description": "Implements all the Utility methods used in normal coding",
+    "main": "build/index.js",
+    "dependencies": {
+        "lodash": "^4.17.10",
+        "webpack": "^2.6.1"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "webpack --watch",
+        "build": "webpack"
+    },
+    "author": {
+        "name": "Shubham Kesarwani",
+        "email": "shubham.kesarwani89@gmail.com"
+    },
+    "devDependencies": {
+        "babel-cli": "^6.24.1",
+        "babel-core": "^6.24.1",
+        "babel-loader": "^7.0.0",
+        "babel-plugin-transform-object-rest-spread": "^6.23.0",
+        "babel-plugin-transform-react-jsx": "^6.24.1",
+        "babel-preset-env": "^1.5.1"
+    }
+}
