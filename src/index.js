@@ -130,3 +130,7 @@ export function BuildUrlForGetCall(url, params) {
 export function IsObjectHaveKeys(obj) {
     return obj && typeof obj == 'object' && Object.keys(obj).length;
 }
+
+export function Test() { 
+    alert('reaching');
+}

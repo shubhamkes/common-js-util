@@ -17207,6 +17207,7 @@ exports.IsEqualObject = IsEqualObject;
 exports.TrimQueryString = TrimQueryString;
 exports.BuildUrlForGetCall = BuildUrlForGetCall;
 exports.IsObjectHaveKeys = IsObjectHaveKeys;
+exports.Test = Test;
 
 var _lodash = __webpack_require__(0);
 
@@ -17338,6 +17339,10 @@ function BuildUrlForGetCall(url, params) {
  */
 function IsObjectHaveKeys(obj) {
     return obj && (typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) == 'object' && Object.keys(obj).length;
+}
+
+function Test() {
+    alert('reaching');
 }
 
 /***/ }),
