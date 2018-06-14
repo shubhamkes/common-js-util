@@ -1,12 +1,17 @@
 {
     "name": "common-js-util",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "description": "Implements all the Utility methods used in normal coding",
     "main": "build/index.js",
     "dependencies": {
         "lodash": "^4.17.10",
         "webpack": "^2.6.1"
     },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/shubhamkes/common-js-util.git"
+    },
+    "license": "MIT",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "webpack --watch",
