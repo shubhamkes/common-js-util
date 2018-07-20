@@ -60,8 +60,8 @@ export function isMobile() {
  * @param  {string} key (optional)
  */
 // Array.prototype.ArrayToObject = function (key) {
-export function ArrayToObject(key) {
-    const array = this;
+export function ArrayToObject(array, key) {
+    // const array = this;
     const obj = {};
 
     array.forEach((element, index) => {
@@ -117,7 +117,9 @@ export function BuildUrlForGetCall(url, params) {
     let newUrl = url + "?";
     for (const i in params) {
         const value = params[i];
-        newUrl += i + "=" + value + "&";
+        if (value) {
+            newUrl += i + "=" + value + "&";
+        }
     };
     return newUrl.slice(0, -1);
 }
@@ -129,8 +131,4 @@ export function BuildUrlForGetCall(url, params) {
  */
 export function IsObjectHaveKeys(obj) {
     return obj && typeof obj == 'object' && Object.keys(obj).length;
-}
-
-export function Test() { 
-    alert('reaching');
 }
