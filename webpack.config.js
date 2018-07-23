@@ -1,27 +1,25 @@
-var path = require('path');
+/*** webpack.config.js ***/
+const path = require('path');
+
 module.exports = {
-  entry: './src/index.js',
-  output: {
-    path: path.resolve(__dirname, 'build'),
-    filename: 'index.js',
-    libraryTarget: 'commonjs2' // THIS IS THE MOST IMPORTANT LINE! :mindblow: I wasted more than 2 days until realize this was the line most important in all this guide.
-  },
-  module: {
-    rules: [
-      {
-        test: /\.js$/,
-        include: path.resolve(__dirname, 'src'),
-        exclude: /(node_modules|bower_components|build)/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['env']
-          }
-        }
-      }
-    ]
-  },
-  externals: {
-    'react': 'commonjs react' // this line is just to use the React dependency of our parent-testing-project instead of using our own React.
-  }
+    entry: path.join(__dirname, "src/index.js"),
+    output: {
+        path: path.join(__dirname, "/build"),
+        filename: "bundle.js"
+    },
+    module: {
+        rules: [
+            {
+                test: /\.js$/,
+                use: "babel-loader",
+                exclude: /node_modules/
+            }
+        ]
+    },
+    resolve: {
+        extensions: [".js"]
+    },
+    devServer: {
+        port: 3001
+    }
 };
