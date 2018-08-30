@@ -118,13 +118,14 @@ export function Delete(obj) {
 * @param  {object} obj - contains url, params(optional){proccessed and attached to url}, 
 * headers(optional)
 */
-export function Upload(url, file) {
+export function Upload(url, file, urlPrefix) {
     const GLOBAL = Getter(Mapper.GLOBAL);
     var formData = new FormData();
     formData.append('file', file.image);
     formData.append('column', file.column);
 
-    return fetch(GLOBAL.API_HOST + url, { // Your POST endpoint
+    const finalUrl = (urlPrefix ? urlPrefix : GLOBAL.API_HOST) + url;
+    return fetch(finalUrl, { // Your POST endpoint
         method: 'POST',
         headers: {
             // 'Content-Type': 'multipart/form-data',
@@ -242,8 +243,16 @@ function getNecessaryParams(obj) {
         url, method, headers, resolve, reject, hideMessage: obj.hideMessage || false, persist: obj.persist || false, callback: obj.callback, extraParams: obj.extraParams
     };
 
+    // if (obj.body) {
+    //     responseObj.body = JSON.stringify(obj.body);
+    // }
+
     if (obj.body) {
-        responseObj.body = JSON.stringify(obj.body);
+        if (obj.payloadType != 'FormData') {
+            responseObj.body = JSON.stringify(obj.body);
+        } else {
+            responseObj.body = obj.body;
+        }
     }
     return (responseObj);
 }
@@ -271,11 +280,15 @@ function createHeader(obj) {
     if (fireToken) {
         headers['Firebase-Id'] = fireToken;
     }
+
+    if (obj.resetHeader) {
+        return obj.headers || {};
+    }
     // if headers are not passed
     if (!obj.headers) {
         return headers;
     }
-    // extend default header options with one, passed with obj
+
     return { ...headers, ...obj.headers };
 }
 

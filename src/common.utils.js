@@ -132,3 +132,10 @@ export function BuildUrlForGetCall(url, params) {
 export function IsObjectHaveKeys(obj) {
     return obj && typeof obj == 'object' && Object.keys(obj).length;
 }
+
+export function GroupBy(Array, key) {
+    return Array.reduce(function (obj, index) {
+        (obj[index[key]] = obj[index[key]] || []).push(index);
+        return obj;
+    }, {});
+};

@@ -147,7 +147,7 @@ export function IsEventAvailable({ eventName, isMemoryStore, objParams }) {
     return false;
 }
 
-export function UnsubscribeEvent({ eventName, callback, isMemoryStore, objParams = {} }) {
+export function UnsubscribeEvent({ eventName, callback, isMemoryStore, objParams }) {
     InitializeMemory();
     const events = (!isMemoryStore ? SubscibedEvent[eventName] : SubscribedStoreEvent[eventName]) || [];
     // events.push({ callback, extraParams, objParams, isMemoryStore });
