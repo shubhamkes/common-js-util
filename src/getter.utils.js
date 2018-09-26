@@ -22,6 +22,5 @@ export function Setter(propertyName, value) {
         return value;
     }
     holderObject[propertyName] = value;
-    console.log(holderObject);
     return value;
 }
