@@ -198,7 +198,7 @@ function StoreImageToAws(data, bookingId, type, nextIndex) {
  * @param  {function} resolve
  * @param  {function} reject}
  */
-function ApiCall({ url, method, headers, body, resolve = defaultResolve, reject = defaultReject, params, hideMessage, hideLoader, persist, callback, extraParams }) {
+function ApiCall({ url, method, headers, body, resolve = defaultResolve, reject = defaultReject, params, hideMessage, hideLoader, persist, callback, extraParams, signal }) {
     const postDict = {
         headers, method
     };
@@ -206,7 +206,7 @@ function ApiCall({ url, method, headers, body, resolve = defaultResolve, reject 
     if (body) { // if body is attached
         postDict.body = body;
     }
-    return fetch(url, { headers, body, method, params, credentials: 'include' })
+    return fetch(url, { headers, body, method, params, signal, credentials: 'include' })
         // .then((response) => {
         //     console.log('sfjsbhf', response);
         //     return resolve(response.json());
@@ -216,6 +216,9 @@ function ApiCall({ url, method, headers, body, resolve = defaultResolve, reject 
             return resolve(response, hideMessage, hideLoader, { url, body, persist, callback, extraParams });
         })
         .catch((error) => {
+            if (error && error.code == 20) { // if request is aborted 
+                return;
+            }
             console.error(error);
             return reject(error, hideMessage, hideLoader, { url, body, persist, callback, extraParams });
         });
@@ -240,7 +243,7 @@ function getNecessaryParams(obj) {
         Loader.startLoader();
     }
     const responseObj = {
-        url, method, headers, resolve, reject, hideMessage: obj.hideMessage || false, persist: obj.persist || false, callback: obj.callback, extraParams: obj.extraParams
+        url, method, headers, resolve, reject, hideMessage: obj.hideMessage || false, persist: obj.persist || false, callback: obj.callback, extraParams: obj.extraParams, signal: obj.signal
     };
 
     // if (obj.body) {
