@@ -14,9 +14,10 @@ import { Getter } from './getter.utils';
 
 const defautlHeaders = {
     'Content-Type': 'application/json;charset=UTF-8',
-    'App-Type': '313',
-
+    'App-Type': '313'
 };
+
+let apiList = [];
 
 /**
  * Get call implementation
@@ -213,9 +214,11 @@ function ApiCall({ url, method, headers, body, resolve = defaultResolve, reject 
         // });
         .then((response) => response.json())
         .then((response) => {
+            markCompletedCall(url);
             return resolve(response, hideMessage, hideLoader, { url, body, persist, callback, extraParams });
         })
         .catch((error) => {
+            markCompletedCall(url);
             if (error && error.code == 20) { // if request is aborted 
                 return;
             }
@@ -242,8 +245,11 @@ function getNecessaryParams(obj) {
     if (!obj.hideLoader && !obj.hasOwnProperty('resolve')) { // if hide loader is not true, start loader
         Loader.startLoader();
     }
+
+
+    const signal = obj.signal || preventPreviousCall(url);
     const responseObj = {
-        url, method, headers, resolve, reject, hideMessage: obj.hideMessage || false, persist: obj.persist || false, callback: obj.callback, extraParams: obj.extraParams, signal: obj.signal
+        url, method, headers, resolve, reject, hideMessage: obj.hideMessage || false, persist: obj.persist || false, callback: obj.callback, extraParams: obj.extraParams, signal
     };
 
     // if (obj.body) {
@@ -355,4 +361,25 @@ function defaultReject(response, hideMessage, hideLoader, { url, body }) {
         }
     }
     return response;
+}
+
+/**
+ * Detects if previously same api call is already in request
+ * if so, abort the previous one and makes fresh call
+ * @param  {string} url
+ */
+function preventPreviousCall(url) {
+    const apiCall = apiList[url];
+    const controller = new window.AbortController();
+    if (apiCall) {
+        try {
+            apiCall.controller.abort();
+        } catch (e) { }
+    }
+    apiList[url] = { url, controller };
+    return controller.signal;
+}
+
+function markCompletedCall(url) {
+    delete apiList[url];
 }
