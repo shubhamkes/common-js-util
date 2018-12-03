@@ -23,7 +23,7 @@ let apiList = [];
  * Get call implementation
  * All get calls are made through this method
  * @param  {object} obj - contains url, params(optional){proccessed and attached to url}, 
- * headers(optional)
+ * headers(optional), allowDuplicateCall(optional) - prevent from cancelling duplicate calls
  */
 export function Get(obj) {
     if (!CheckInternet()) {
@@ -220,7 +220,7 @@ function ApiCall({ url, method, headers, body, resolve = defaultResolve, reject 
         .catch((error) => {
             markCompletedCall(url);
             if (error && error.code == 20) { // if request is aborted 
-                return;
+                return { success: false };
             }
             console.error(error);
             return reject(error, hideMessage, hideLoader, { url, body, persist, callback, extraParams });
@@ -246,8 +246,10 @@ function getNecessaryParams(obj) {
         Loader.startLoader();
     }
 
-
-    const signal = obj.signal || preventPreviousCall(url);
+    let signal;
+    if (!obj.allowDuplicateCall) {
+        signal = obj.signal || preventPreviousCall(url);
+    }
     const responseObj = {
         url, method, headers, resolve, reject, hideMessage: obj.hideMessage || false, persist: obj.persist || false, callback: obj.callback, extraParams: obj.extraParams, signal
     };
