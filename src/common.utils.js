@@ -115,7 +115,7 @@ export function TrimQueryString(options) {
  */
 export function BuildUrlForGetCall(url, params) {
     let newUrl = '';
-    if (url.includes('query') && params.query) {
+    if (url.includes('?query') && params.query) {
         newUrl = url + ' and ' + params.query + '&';
         delete params.query;
     } else {
