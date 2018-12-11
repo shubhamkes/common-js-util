@@ -114,7 +114,13 @@ export function TrimQueryString(options) {
  * @param  {object} params
  */
 export function BuildUrlForGetCall(url, params) {
-    let newUrl = url + "?";
+    let newUrl = '';
+    if (url.includes('query') && params.query) {
+        newUrl = url + ' and ' + params.query + '&';
+        delete params.query;
+    } else {
+        newUrl = url + "?";
+    }
     for (const i in params) {
         const value = params[i];
         if (value) {
