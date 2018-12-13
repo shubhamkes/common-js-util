@@ -319,7 +319,9 @@ function defaultResolve(response, hideMessage, hideLoader, { persist, url, body,
         const type = response.success ? 'success' : 'error';
         // @TODO show message -response.response
         // ToastNotifications.success({ message: 'etas' });
-        ToastNotifications[type]({ title: response.reason || response.response });
+        // ToastNotifications[type]({ title: response.reason || response.response });
+        ToastNotifications[type]({ title: type, description: response.reason || response.response });
+
     }
     if (persist && !CheckInternet()) {
         StoreEvent({ eventName: url, data: response, objParams: body, isMemoryStore: true });
