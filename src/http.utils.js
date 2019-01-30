@@ -374,14 +374,16 @@ function defaultReject(response, hideMessage, hideLoader, { url, body }) {
  */
 function preventPreviousCall(url) {
     const apiCall = apiList[url];
-    const controller = new window.AbortController();
-    if (apiCall) {
-        try {
-            apiCall.controller.abort();
-        } catch (e) { }
+    if (window && window.AbortController) {
+        const controller = new window.AbortController();
+        if (apiCall) {
+            try {
+                apiCall.controller.abort();
+            } catch (e) { }
+        }
+        apiList[url] = { url, controller };
+        return controller.signal;
     }
-    apiList[url] = { url, controller };
-    return controller.signal;
 }
 
 function markCompletedCall(url) {
