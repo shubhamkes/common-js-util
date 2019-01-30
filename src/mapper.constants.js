@@ -3,5 +3,6 @@ export default {
     GetItem: 'GetItem',
     GLOBAL: 'GLOBAL',
     ToastNotifications: 'ToastNotifications',
-    Loader: 'Loader'
+    Loader: 'Loader',
+    StateManagerUtils: 'StateManagerUtils'
 }
