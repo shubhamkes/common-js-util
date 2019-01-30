@@ -337,7 +337,7 @@ function defaultResolve(response, hideMessage, hideLoader, { persist, url, body,
     } else if (typeof callback == 'function') {
         callback(response, { eventName: url, extraParams });
     }
-    /* Declaring @variable pageData_reject
+    /* Declaring @variable pageData
       for collecting data for Json Inspector */
     let pageData = {
         url,
