@@ -3,10 +3,15 @@
  * implements get, post, put, delete calls
  ****************************************/
 
+ 'use strict';
+
 // import GLOBAL from './../Constants/global.constants';
 // import { GetFireToken } from './user.utils'; // @TODO fix this later
 import { IsUndefined, CheckInternet } from './common.utils';
-import { StoreEvent, SubscribeToEvent, IsEventAvailable } from './stateManager.utils';
+// import { StoreEvent, SubscribeToEvent, IsEventAvailable } from './stateManager.utils';
+import moment from 'moment';
+
+
 // import { ToastNotifications, Loader } from 'drivezy-web-utils/build/Utils';
 
 import Mapper from './mapper.constants';
@@ -17,7 +22,7 @@ const defautlHeaders = {
     'App-Type': '313'
 };
 
-let apiList = [];
+let apiList = {};
 
 /**
  * Get call implementation
@@ -29,6 +34,7 @@ export function Get(obj) {
     if (!CheckInternet()) {
         if (obj.persist) {
             const url = createFinalUrl(obj);
+            const { SubscribeToEvent, IsEventAvailable } = Getter(Mapper.StateManagerUtils);
             SubscribeToEvent({ eventName: url, callback: obj.callback, objParams: obj.body, isMemoryStore: true, extraParams: obj.extraParams });
             if ((!obj.update) && IsEventAvailable({ eventName: url, isMemoryStore: true, objParams: obj.body })) {
                 return;
@@ -41,8 +47,8 @@ export function Get(obj) {
     if (!(obj && obj.url)) {
         return false;
     }
-
     const params = getNecessaryParams(obj);
+
     return ApiCall(params);
 }
 
@@ -56,6 +62,7 @@ export function Post(obj) {
     if (!CheckInternet()) {
         if (obj.persist) {
             const url = createFinalUrl(obj);
+            const { SubscribeToEvent, IsEventAvailable } = Getter(Mapper.StateManagerUtils);
             SubscribeToEvent({ eventName: url, callback: obj.callback, objParams: obj.body, isMemoryStore: true, extraParams: obj.extraParams });
             if ((!obj.update) && IsEventAvailable({ eventName: url, isMemoryStore: true, objParams: obj.body })) {
                 return;
@@ -207,15 +214,16 @@ function ApiCall({ url, method, headers, body, resolve = defaultResolve, reject 
     if (body) { // if body is attached
         postDict.body = body;
     }
+    let status = '';
     return fetch(url, { headers, body, method, params, signal, credentials: 'include' })
         // .then((response) => {
         //     console.log('sfjsbhf', response);
         //     return resolve(response.json());
         // });
-        .then((response) => response.json())
+        .then((response) => { status = response.status; return response.json() })
         .then((response) => {
             markCompletedCall(url);
-            return resolve(response, hideMessage, hideLoader, { url, body, persist, callback, extraParams });
+            return resolve(response, hideMessage, hideLoader, { status, url, body, persist, callback, extraParams, method });
         })
         .catch((error) => {
             markCompletedCall(url);
@@ -223,7 +231,7 @@ function ApiCall({ url, method, headers, body, resolve = defaultResolve, reject 
                 return { success: false };
             }
             console.error(error);
-            return reject(error, hideMessage, hideLoader, { url, body, persist, callback, extraParams });
+            return reject(error, hideMessage, hideLoader, { status, url, body, persist, callback, extraParams, method });
         });
 }
 
@@ -239,14 +247,15 @@ function getNecessaryParams(obj) {
     const method = obj.method || 'GET';
     const headers = createHeader(obj);
 
-    const resolve = obj.hasOwnProperty('resolve') ? obj.resolve : resolve;
-    const reject = obj.hasOwnProperty('reject') ? obj.reject : reject;
+    const resolve = obj.hasOwnProperty('resolve') ? obj.resolve : defaultResolve;
+    const reject = obj.hasOwnProperty('reject') ? obj.reject : defaultReject;
 
     if (!obj.hideLoader && !obj.hasOwnProperty('resolve')) { // if hide loader is not true, start loader
         Loader.startLoader();
     }
 
     let signal;
+    // alert('hey, 256');
     if (!obj.allowDuplicateCall) {
         signal = obj.signal || preventPreviousCall(url);
     }
@@ -307,8 +316,9 @@ function createHeader(obj) {
  * default method to pass through on each success api call
  * @param  {object} response
  */
-function defaultResolve(response, hideMessage, hideLoader, { persist, url, body, callback, extraParams }) {
+function defaultResolve(response, hideMessage, hideLoader, { persist, url, body, callback, extraParams, method, status }) {
     const { ToastNotifications, Loader } = Getter([Mapper.ToastNotifications, Mapper.Loader]);
+
     if (!hideLoader) { // stop loader
         Loader.endLoader();
     }
@@ -324,11 +334,24 @@ function defaultResolve(response, hideMessage, hideLoader, { persist, url, body,
 
     }
     if (persist && !CheckInternet()) {
+        const { StoreEvent } = Getter(Mapper.StateManagerUtils);
         StoreEvent({ eventName: url, data: response, objParams: body, isMemoryStore: true });
         // SubscribeToEvent({ eventName, callback, objParams: body, isMemoryStore: true });
     } else if (typeof callback == 'function') {
         callback(response, { eventName: url, extraParams });
     }
+    /* Declaring @variable pageData
+      for collecting data for Json Inspector */
+    let pageData = {
+        url,
+        body,
+        response,
+        method,
+        time: moment().format("hh:mm:ss a"),
+        error_msg: response.reason || response.response,
+        status
+    };
+    gatherApiCallData(pageData);
     return response;
 }
 
@@ -336,8 +359,9 @@ function defaultResolve(response, hideMessage, hideLoader, { persist, url, body,
  * default method to pass through on each failure api call
  * @param  {object} response
  */
-function defaultReject(response, hideMessage, hideLoader, { url, body }) {
+function defaultReject(response, hideMessage, hideLoader, { url, body, method, status }) {
     const { ToastNotifications, Loader } = Getter([Mapper.ToastNotifications, Mapper.Loader]);
+
     if (!hideLoader) { // stop loader
         Loader.endLoader();
     }
@@ -364,6 +388,19 @@ function defaultReject(response, hideMessage, hideLoader, { url, body }) {
             ToastNotifications.error({ title: message });
         }
     }
+
+    /* Declaring @variable pageData_reject
+     for collecting data for Json Inspector */
+    let pageData_reject = {
+        url,
+        body,
+        response,
+        method,
+        time: moment().format("hh:mm:ss a"),
+        error_msg: message,
+        status
+    };
+    gatherApiCallData(pageData_reject);
     return response;
 }
 
@@ -374,16 +411,30 @@ function defaultReject(response, hideMessage, hideLoader, { url, body }) {
  */
 function preventPreviousCall(url) {
     const apiCall = apiList[url];
-    const controller = new window.AbortController();
-    if (apiCall) {
-        try {
-            apiCall.controller.abort();
-        } catch (e) { }
+    if (window && window.AbortController) {
+        const controller = new window.AbortController();
+        if (apiCall) {
+            try {
+                apiCall.controller.abort();
+            } catch (e) { }
+        }
+        apiList[url] = { url, controller };
+        return controller.signal;
     }
-    apiList[url] = { url, controller };
-    return controller.signal;
 }
 
 function markCompletedCall(url) {
     delete apiList[url];
+}
+
+/**
+ * This method collecting url,body and response for every api call Used in Json Inspector
+ * @param  {object} pageData
+ */
+function gatherApiCallData(pageData) {
+    const StateManagerUtils = Getter(Mapper.StateManagerUtils) || {};
+    const { StoreEvent } = StateManagerUtils;
+    if (typeof StoreEvent == 'function') {
+        StoreEvent({ eventName: 'pageData', data: pageData })
+    }
 }
