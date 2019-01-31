@@ -3,6 +3,8 @@
  * implements get, post, put, delete calls
  ****************************************/
 
+ 'use strict';
+
 // import GLOBAL from './../Constants/global.constants';
 // import { GetFireToken } from './user.utils'; // @TODO fix this later
 import { IsUndefined, CheckInternet } from './common.utils';
@@ -20,7 +22,7 @@ const defautlHeaders = {
     'App-Type': '313'
 };
 
-let apiList = [];
+let apiList = {};
 
 /**
  * Get call implementation
@@ -45,8 +47,8 @@ export function Get(obj) {
     if (!(obj && obj.url)) {
         return false;
     }
-
     const params = getNecessaryParams(obj);
+
     return ApiCall(params);
 }
 
@@ -245,14 +247,15 @@ function getNecessaryParams(obj) {
     const method = obj.method || 'GET';
     const headers = createHeader(obj);
 
-    const resolve = obj.hasOwnProperty('resolve') ? obj.resolve : resolve;
-    const reject = obj.hasOwnProperty('reject') ? obj.reject : reject;
+    const resolve = obj.hasOwnProperty('resolve') ? obj.resolve : defaultResolve;
+    const reject = obj.hasOwnProperty('reject') ? obj.reject : defaultReject;
 
     if (!obj.hideLoader && !obj.hasOwnProperty('resolve')) { // if hide loader is not true, start loader
         Loader.startLoader();
     }
 
     let signal;
+    // alert('hey, 256');
     if (!obj.allowDuplicateCall) {
         signal = obj.signal || preventPreviousCall(url);
     }
@@ -431,7 +434,7 @@ function markCompletedCall(url) {
 function gatherApiCallData(pageData) {
     const StateManagerUtils = Getter(Mapper.StateManagerUtils) || {};
     const { StoreEvent } = StateManagerUtils;
-    if (typeof StorageEvent == 'function') {
+    if (typeof StoreEvent == 'function') {
         StoreEvent({ eventName: 'pageData', data: pageData })
     }
 }
