@@ -3,7 +3,7 @@
  * implements get, post, put, delete calls
  ****************************************/
 
- 'use strict';
+'use strict';
 
 // import GLOBAL from './../Constants/global.constants';
 // import { GetFireToken } from './user.utils'; // @TODO fix this later
@@ -328,9 +328,9 @@ function defaultResolve(response, hideMessage, hideLoader, { persist, url, body,
     } else if (!hideMessage && response && typeof response == 'object' && (typeof response.response == 'string' || typeof response.reason == 'string')) {
         const type = response.success ? 'success' : 'error';
         // @TODO show message -response.response
-        // ToastNotifications.success({ message: 'etas' });
-        // ToastNotifications[type]({ title: response.reason || response.response });
-        ToastNotifications[type]({ title: type, description: response.reason || response.response });
+        if (ToastNotifications && typeof ToastNotifications == 'object' && typeof ToastNotifications[type] == 'function') {
+            ToastNotifications[type]({ title: type, description: response.reason || response.response });
+        }
 
     }
     if (persist && !CheckInternet()) {
@@ -384,7 +384,7 @@ function defaultReject(response, hideMessage, hideLoader, { url, body, method, s
         } else {
             message = 'Internal server error';
         }
-        if (message) {
+        if (message && ToastNotifications && typeof ToastNotifications == 'object' && typeof ToastNotifications.error == 'function') {
             ToastNotifications.error({ title: message });
         }
     }
