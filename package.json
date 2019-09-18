@@ -1,6 +1,6 @@
 {
   "name": "common-js-util",
-  "version": "0.1.34",
+  "version": "0.1.38",
   "description": "Implements all the Utility methods used in normal coding",
   "main": "build/index.js",
   "size-limit": [

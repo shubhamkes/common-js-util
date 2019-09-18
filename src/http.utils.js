@@ -328,7 +328,7 @@ function defaultResolve(response, hideMessage, hideLoader, { persist, url, body,
     } else if (!hideMessage && response && typeof response == 'object' && (typeof response.response == 'string' || typeof response.reason == 'string')) {
         const type = response.success ? 'success' : 'error';
         // @TODO show message -response.response
-        if (ToastNotifications && typeof ToastNotifications == 'object' && typeof ToastNotifications[type] == 'function') {
+        if (ToastNotifications && typeof ToastNotifications[type] == 'function') {
             ToastNotifications[type]({ title: type, description: response.reason || response.response });
         }
 
